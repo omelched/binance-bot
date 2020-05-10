@@ -1,3 +1,7 @@
 from app.application import Application
+import os
 
-App = Application()
+if os.environ["UNIT_TEST_IN_PROGRESS"] == "1":
+    pass
+else:
+    App = Application()

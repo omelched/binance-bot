@@ -1,4 +1,5 @@
 import configparser
+import os
 
 
 class ConfigClass(object):
@@ -7,6 +8,7 @@ class ConfigClass(object):
         self.init_from_cfg()
 
     def init_from_cfg(self):
+        my_dir = os.path.dirname(__file__)
         self.config_manager.read('app/CONFIG.cfg')
 
 
