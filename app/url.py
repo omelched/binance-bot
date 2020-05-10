@@ -21,6 +21,7 @@ class URLHandler(object):
         end, start = self.app.time_handler.prepare_times(end, start)
         url = concat_uri(self.candle_url, symbol=symbol, resolution=resolution,
                          _from=start, to=end)
+        print(url)
 
         response = requests.request('GET', url, headers=self.public_headers, data={}).json()
 

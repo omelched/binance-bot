@@ -1,12 +1,29 @@
 import pandas as pd
 import numpy as np
+from app.utils import ConfigClass
 from matplotlib.axes import Axes
 
 from app.utils import NonExistingIndicatorParameter
 
 
-class Indicator(object):
+class Indicator(ConfigClass):
+    """
+    Базовый класс Индикаторов.
+    Все классы наследуются от него.
+    """
+
     def __init__(self, model: str, name: str):
+        """
+        Метод инициализации.
+        Устанавливаются наименования модели, наименование индикатора,
+        создается пустой словарь параметров, нулевой результат вычисления индикатора.
+
+        :type model: str
+        :type name: str
+        :param model: — имя модели индикатора
+        :param name:
+        """
+        super().__init__()
         self.model = model
         self.name = name
         self.parameters = {}
@@ -33,8 +50,30 @@ class Indicator(object):
 
 
 class SMA(Indicator):
-    def __init__(self, length: int = 21, target: str = 'Close'):
+    """
+    Класс Индикатора SMA.
+    Дочерний класс Indicator
+    """
+
+    def __init__(self, length: int = None, target: str = None):
+        """
+        Метод инициализации.
+        Инициализирцется родительский класс.
+        Устанавливаются параметры length — "длина" скользящего среднего
+        и target — "цель" — атрибут рынка по которому будет строиться скользящее среднее.
+
+        :type length: int
+        :type target: str
+        :param length: "длина" скользящего среднего, по-умолчанию — 21
+        :param target: "цель" скользящего среднего, по-умолчанию — 'Close'
+        """
         super().__init__('SMA', '{}_{}'.format('SMA', length))
+        if not length:
+            length = int(self.config_manager['ANALYSIS']['SMA_default_length'])
+            self.name = '{}_{}'.format('SMA', length)
+        if not target:
+            target = self.config_manager['ANALYSIS']['SMA_default_target']
+
         self.parameters = self._get_parameters_dict()
         self._fill_in_parameters(length=length, target=target)
 

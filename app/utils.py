@@ -7,7 +7,7 @@ class ConfigClass(object):
         self.init_from_cfg()
 
     def init_from_cfg(self):
-        self.config_manager.read()
+        self.config_manager.read('app/CONFIG.cfg')
 
 
 def concat_uri(main_url: str, **kwargs):

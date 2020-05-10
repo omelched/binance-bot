@@ -8,9 +8,14 @@ from app.utils import ConfigClass
 
 class Application(ConfigClass):
     def __init__(self):
-        self.pair = 'BTC_RUB'
-        self.resolution = 15
-        self.start_timestamp = 1588032000
+        super().__init__()
+        self.pair = self.config_manager['APPLICATION']['pair']
+        self.resolution = int(self.config_manager['APPLICATION']['resolution'])
+        self.start_timestamp = int(self.config_manager['APPLICATION']['start_timestamp'])
+        # self.pair = 'BTC_RUB'
+        # self.resolution = 15
+        # self.start_timestamp = 1588032000
+
         self.mem_df = None
         self.indicators = [SMA(), SMA(length=15)]
 

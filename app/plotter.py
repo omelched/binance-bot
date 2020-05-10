@@ -33,11 +33,11 @@ class Plotter(object):
         #     print(self.analysis_metrics_df)
 
         self.plt.savefig('test.png', bbox_inches='tight',
-                         pad_inches=0, dpi=500)
+                         pad_inches=0, dpi=int(self.app.config_manager['PLOT']['DPI']))
 
     def _plot_candles(self):
-        self.fig.set_figwidth(12)
-        self.fig.set_figheight(6)
+        self.fig.set_figwidth(int(self.app.config_manager['PLOT']['figwidth']))
+        self.fig.set_figheight(int(self.app.config_manager['PLOT']['figheight']))
 
         self.ax.xaxis.set_major_locator(mdates.HourLocator(byhour=[0, 4, 8, 12, 16, 20]))
         self.ax.xaxis.set_minor_locator(mdates.MinuteLocator(byminute=[0, 30]))
