@@ -14,7 +14,7 @@ class URLHandler(object):
         if not end:
             end = self.app.time_handler.time_now()
         if not start and not tick_num:
-            start = self.app.time_handler.get_last_day(end)
+            start = self.app.time_handler.get_date_for_ticks(self.app.time_handler.get_last_day(end), resolution, 21)
         elif tick_num:
             start = self.app.time_handler.get_date_for_ticks(end, resolution, tick_num)
 

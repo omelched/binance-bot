@@ -1,3 +1,15 @@
+import configparser
+
+
+class ConfigClass(object):
+    def __init__(self):
+        self.config_manager = configparser.ConfigParser()
+        self.init_from_cfg()
+
+    def init_from_cfg(self):
+        self.config_manager.read()
+
+
 def concat_uri(main_url: str, **kwargs):
     url = main_url + '?'
     for key, value in kwargs.items():
@@ -11,3 +23,8 @@ def concat_uri(main_url: str, **kwargs):
 
 class Exception40014(BaseException):
     pass
+
+
+class NonExistingIndicatorParameter(BaseException):
+    pass
+
