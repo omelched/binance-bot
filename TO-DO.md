@@ -1,0 +1,45 @@
+- [ ] pick a license!
+- [ ] adequate ~~мать его~~ README.md
+- [x] bundle variables in CONFIG.cfg + implement `configparser`
+    - [ ] cannot parse `hour_locator` и `minute_locator` :(
+- [ ] implement unittests
+  - [x] `analysis.py`
+  - [ ] `application.py`
+  - [ ] `database.py`
+  - [ ] `plotter.py`
+  - [ ] `time.py`
+  - [ ] `url.py`
+  - [ ] `utils.py`
+- [ ] make Market indicators
+  - [x] SMA
+  - [ ] WMA
+  - [ ] EMA
+  - [ ] ROC
+  - [ ] MACD
+  - [ ] Bollinger Band®
+  - [ ] stochastic oscillator
+  - [ ] Awesome oscillator
+  - [ ] Coppock curve
+- [ ] correct typing for `model` in `app.analysis.Indicator`
+- [ ] `docstring`
+  - [ ] `analysis.py`
+  - [ ] `application.py`
+  - [ ] `database.py`
+  - [ ] `plotter.py`
+  - [ ] `time.py`
+  - [ ] `url.py`
+  - [ ] `utils.py`
+- [ ] describe any possible exit parameters of indicators
+  - [ ] WMA
+  - [ ] EMA
+  - [ ] ROC
+  - [ ] MACD
+  - [ ] Bollinger Band®
+  - [ ] stochastic oscillator
+  - [ ] Awesome oscillator
+  - [ ] Coppock curve
+- [ ] analyse exit parameters and lower their dimensions
+- [ ] machine learning
+- [ ] adequate UI
+- [ ] implement `sqlalchemy` + `sqlite` / `postgres`
+- [ ] implement [client-server interaction](https://github.com/omelched/client-server-unittest) + `heroku`  
