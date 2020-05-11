@@ -83,7 +83,7 @@ class SMA(Indicator):
         index = proxy_df.columns.get_loc(target)
 
         column_name = 'SMA_{}'.format(length)
-        dif_column_name = '_d(SMA_{})/dT'.format(length)
+        dif_column_name = 'd(SMA_{})/dT'.format(length)
 
         proxy_df[column_name] = proxy_df.iloc[:, index].rolling(window=length).mean()[length:]
         proxy_df[dif_column_name] = \
@@ -94,7 +94,8 @@ class SMA(Indicator):
 
     def plot(self, ax, ticks, colour='b'):
         df = self.result.tail(ticks)
-        ax.plot(df.index, df['SMA_{}'.format(self.parameters['length'])], c=colour, lw=1)
+        ax.plot(df.index, df['SMA_{}'.format(self.parameters['length'])],
+                c=colour, lw=1, label=self.name)
 
 
 class AnalysisHandler(object):
@@ -108,9 +109,9 @@ class AnalysisHandler(object):
         for indicator in self.app.indicators:
             indicator.calculate(self.proxy_df)
 
-    def plot_all(self, ax: Axes):
+    def plot_all(self, ax: Axes, ticks: int = 96):
         for indicator in self.app.indicators:
-            indicator.plot(ax, ticks=96)
+            indicator.plot(ax, ticks=ticks)
 
     def _prepare_proxy_df(self):
         self.proxy_df = self.app.mem_df

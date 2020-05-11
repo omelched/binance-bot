@@ -34,7 +34,7 @@ Please make sure to update tests as appropriate.
 - [x] занести некоторые численные переменные в CONFIG.cfg + прикуртить configparser
     - [ ] не получилось занести hour_locator и minute_locator :(
 - [ ] прикрутить unittests
-  - [ ] analysis.py
+  - [x] analysis.py
   - [ ] application.py
   - [ ] database.py
   - [ ] plotter.py
