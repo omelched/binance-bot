@@ -1,13 +1,13 @@
-import unittest
-import configparser
 import os
-import pandas as pd
-import numpy as np
-from pandas.testing import assert_frame_equal
+import unittest
+
 import matplotlib.pyplot as mplplt
+import numpy as np
+import pandas as pd
+from pandas.testing import assert_frame_equal
 
 os.environ['UNIT_TEST_IN_PROGRESS'] = '1'
-from app import analysis
+from app import analysis, utils
 
 proxy_df = pd.DataFrame({'Close': [46, 80, 19, 76, 83, 6, 36, 70, 90, 52, 62, 28, 54, 75, 9, 60, 25, 93,
                                    86, 48, 17, 71, 45, 54, 77, 52, 19, 22, 30, 11, 70, 82, 61, 65, 17, 22,
@@ -52,6 +52,8 @@ golden_ax_xydata = pd.DataFrame([[7.30141000e+05, 5.42857143e+01],
 
 test_fig, test_ax = mplplt.subplots()
 
+config_manager = utils.ConfigClass().config_manager
+
 
 class ProxyApp(object):
     def __init__(self, df: pd.DataFrame):
@@ -62,8 +64,6 @@ class ProxyApp(object):
 class TestSMA(unittest.TestCase):
     def setUp(self) -> None:
         self.SMA_instance = analysis.SMA()
-        self.config_manager = configparser.ConfigParser()
-        self.config_manager.read('app/CONFIG.cfg')
 
     def tearDown(self) -> None:
         test_ax.clear()
@@ -71,8 +71,8 @@ class TestSMA(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(self.SMA_instance.parameters,
-                         {'length': int(self.config_manager['ANALYSIS']['SMA_default_length']),
-                          'target': str(self.config_manager['ANALYSIS']['SMA_default_target'])})
+                         {'length': int(config_manager['ANALYSIS']['SMA_default_length']),
+                          'target': str(config_manager['ANALYSIS']['SMA_default_target'])})
 
     def test_calculate(self):
         self.SMA_instance.calculate(proxy_df)
@@ -85,7 +85,7 @@ class TestSMA(unittest.TestCase):
         assert_frame_equal(golden_ax_xydata, pd.DataFrame(test_ax.lines[0].get_xydata()))
 
 
-class TestsAnalysisHandler(unittest.TestCase):
+class TestAnalysisHandler(unittest.TestCase):
     def setUp(self) -> None:
         self.proxy_app = ProxyApp(proxy_df)
         self.analysis_handler_instance = analysis.AnalysisHandler(self.proxy_app)
@@ -111,6 +111,3 @@ class TestsAnalysisHandler(unittest.TestCase):
             line = [line for line in test_ax.lines if line.get_label() == indicator.name][0]
             assert_frame_equal(golden_ax_xydata, pd.DataFrame(line.get_xydata()))
 
-
-if __name__ == '__main__':
-    unittest.main()
