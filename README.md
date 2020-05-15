@@ -1,4 +1,4 @@
-# EXMO-bot — stock technical analysis
+# BINANCE-bot — stock technical analysis
 ###### Other language readme files
 - [en](README.md)
 - [ru](ru_README.md)
