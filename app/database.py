@@ -25,21 +25,22 @@ class DatabaseHandler(object):
                            index_col=0)
 
     @staticmethod
-    def JSON_to_df(json_list: dict):
+    def response_to_df(json_list: dict):
         df = pd.DataFrame(json_list)
+        df = df.iloc[:, :-1]
+        df.columns = ['t', 'o', 'h', 'l', 'c', 'v', '_t', '_v', 'n', 'tv', '_tv']
         return df
 
     def update_input(self):
-        self.save_to_csv(self.JSON_to_df(self.app.url_handler.get_candles(self.app.pair,
-                                                                          self.app.resolution,
-                                                                          start=self.app.start_timestamp)),
+        self.save_to_csv(self.response_to_df(self.app.url_handler.get_klines(self.app.pair,
+                                                                             self.app.resolution)),
                          self.raw_file_path)
 
     def prepare_files(self):
         try:
             mtime = os.stat(self.raw_file_path).st_mtime
             if self.app.time_handler.file_is_outdated(mtime):
-                # TO-DO: изменить с полной замены на догрузку недостающих частей - если resolution не поменялся
+                # TODO: изменить с полной замены на догрузку недостающих частей - если resolution не поменялся
                 self.update_input()
         except FileNotFoundError:
             self.update_input()
@@ -48,9 +49,9 @@ class DatabaseHandler(object):
 
         self.prepare_files()
 
-        df = self.load_from_csv(self.raw_file_path)
+        df = self.load_from_csv(self.raw_file_path)[['t', 'o', 'h', 'l', 'c', 'v']]
 
-        df.columns = ['Timestamp', 'Open', 'Close', 'High', 'Low', 'Volume']
+        df.columns = ['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume']
         df['Timestamp'] = [self.app.time_handler.timestamp_to_datetime(ts) for ts in df['Timestamp']]
         df.set_index('Timestamp', inplace=True, drop=True)
 

@@ -12,7 +12,7 @@
   - [ ] `utils.py`
 - [ ] make Market indicators
   - [x] SMA
-  - [ ] WMA
+  - [x] WMA
   - [ ] EMA
   - [ ] ROC
   - [ ] MACD

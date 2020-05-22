@@ -1,4 +1,5 @@
 import datetime as dt
+from app.utils import InvalidResolutionSettings
 
 
 class TimeHandler(object):
@@ -6,9 +7,22 @@ class TimeHandler(object):
         self.app = app
 
     def file_is_outdated(self, mtime: float):
-        age_limit = self.app.resolution
+        age_limit = self.app.resolution[0]
+        if self.app.resolution[1] == 'm':
+            age_multiplier = 1
+        elif self.app.resolution[1] == 'h':
+            age_multiplier = 60
+        elif self.app.resolution[1] == 'd':
+            age_multiplier = 60 * 24
+        elif self.app.resolution[1] == 'w':
+            age_multiplier = 60 * 20 * 7
+        elif self.app.resolution[1] == 'M':
+            age_multiplier = 60 * 20 * 7 * 30
+        else:
+            raise InvalidResolutionSettings
 
-        return mtime < (dt.datetime.now().replace(microsecond=0) - dt.timedelta(minutes=age_limit)).timestamp()
+        return mtime < (dt.datetime.now().replace(microsecond=0) -
+                        dt.timedelta(minutes=age_limit * age_multiplier)).timestamp()
 
     @staticmethod
     def time_now(late: bool = False):

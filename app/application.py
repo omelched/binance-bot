@@ -1,6 +1,6 @@
 from app.time import TimeHandler
 from app.url import URLHandler
-from app.analysis import AnalysisHandler, SMA
+from app.analysis import AnalysisHandler, SMA, WMA
 from app.database import DatabaseHandler
 from app.plotter import Plotter
 from app.utils import ConfigClass
@@ -10,14 +10,13 @@ class Application(ConfigClass):
     def __init__(self):
         super().__init__()
         self.pair = self.config_manager['APPLICATION']['pair']
-        self.resolution = int(self.config_manager['APPLICATION']['resolution'])
+        self.resolution = (int(self.config_manager['APPLICATION']['resolution_number']),
+                           self.config_manager['APPLICATION']['resolution_base'])
+
         self.start_timestamp = int(self.config_manager['APPLICATION']['start_timestamp'])
-        # self.pair = 'BTC_RUB'
-        # self.resolution = 15
-        # self.start_timestamp = 1588032000
 
         self.mem_df = None
-        self.indicators = [SMA(), SMA(length=15)]
+        self.indicators = [SMA(), SMA(length=15), SMA(length=200), WMA() ]
 
         self.time_handler = TimeHandler(self)
         self.url_handler = URLHandler(self)
@@ -30,10 +29,11 @@ class Application(ConfigClass):
     def interface_loop(self):
         print('Запустились')
         print("Доступные команды:\n"
-              "\tplot: — обновить файл графика\n"
-              "\tshow: - показать график\n"
-              "\tprint: — напечатать аналитические данные\n"
-              "\tq: — выключить программу\n")
+              "\tplot — обновить файл графика\n"
+              "\tshow - показать график\n"
+              "\tprint — напечатать аналитические данные\n"
+              "\tq — выключить программу\n"
+              "\tupd — обновить входные данные")
         while True:
             input_line = input().split(':')
             cmd = input_line[0]
@@ -45,9 +45,11 @@ class Application(ConfigClass):
                 exit()
             elif cmd == 'print':
                 print(self.mem_df)
+            elif cmd == 'upd':
+                self.database_handler.update_input()
             else:
                 print('wrong cmd')
 
-    def plot(self):
+    def plot(self, ticks: int = 96):
 
-        self.plotter.plot_all()
+        self.plotter.plot_all(ticks)
