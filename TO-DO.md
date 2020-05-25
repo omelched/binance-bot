@@ -13,8 +13,8 @@
 - [ ] make Market indicators
   - [x] SMA
   - [x] WMA
-  - [ ] EMA
-  - [ ] ROC
+  - [x] EMA
+  - [x] ROC
   - [ ] MACD
   - [ ] Bollinger Band®
   - [ ] stochastic oscillator

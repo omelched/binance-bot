@@ -1,6 +1,7 @@
 from app.application import Application
 import os
 
+# TODO: сделать адекватную проверку
 try:
     _ = os.environ['PRODUCTION']
     App = Application()
