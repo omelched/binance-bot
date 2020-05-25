@@ -230,54 +230,54 @@ class ROC(Indicator):
         self.result = proxy_df[[column_name, dif_column_name]]
 
 
-class MACD(Indicator):
-
-    def __init__(self,
-                 fast_length: int = None,
-                 slow_length: int = None,
-                 signal_length: int = None,
-                 target: str = None):
-
-        if not fast_length:
-            fast_length = int(self.config_manager['ANALYSIS']['MACD_default_fast_length'])
-        if not slow_length:
-            slow_length = int(self.config_manager['ANALYSIS']['MACD_default_slow_length'])
-        if not signal_length:
-            signal_length = int(self.config_manager['ANALYSIS']['MACD_default_signal_length'])
-        if not target:
-            target = self.config_manager['ANALYSIS']['ROC_default_target']
-
-        super().__init__('MACD', '{}_({}, {}, {})'.format('MACD', fast_length, slow_length, signal_length))
-
-        self.parameters = self._get_parameters_dict()
-        self._fill_in_parameters(fast_length=fast_length,
-                                 slow_length=slow_length,
-                                 signal_length=signal_length,
-                                 target=target)
-
-    def calculate(self, proxy_df):
-        fast_length = self.parameters['fast_length']
-        slow_length = self.parameters['slow_length']
-        signal_length = self.parameters['signal_length']
-        target = self.parameters['target']
-        col_index = proxy_df.columns.get_loc(target)
-
-        column_name = '{}'.format(self.name)
-        dif_column_name = 'd({})/dT'.format(self.name)
-
-        average_result = [None] * (length - 1)
-        for i in range(length - 1, len(proxy_df.index)):
-            average_result.append(
-                (proxy_df.iloc[i, col_index] - proxy_df.iloc[i - length, col_index])
-                / proxy_df.iloc[i - length, col_index] * 100
-            )
-
-        proxy_df[column_name] = average_result
-        proxy_df[dif_column_name] = \
-            proxy_df[column_name].diff() / \
-            proxy_df.index.to_series().diff().dt.total_seconds()
-
-        self.result = proxy_df[[column_name, dif_column_name]]
+# class MACD(Indicator):
+#
+#     def __init__(self,
+#                  fast_length: int = None,
+#                  slow_length: int = None,
+#                  signal_length: int = None,
+#                  target: str = None):
+#
+#         if not fast_length:
+#             fast_length = int(self.config_manager['ANALYSIS']['MACD_default_fast_length'])
+#         if not slow_length:
+#             slow_length = int(self.config_manager['ANALYSIS']['MACD_default_slow_length'])
+#         if not signal_length:
+#             signal_length = int(self.config_manager['ANALYSIS']['MACD_default_signal_length'])
+#         if not target:
+#             target = self.config_manager['ANALYSIS']['ROC_default_target']
+#
+#         super().__init__('MACD', '{}_({}, {}, {})'.format('MACD', fast_length, slow_length, signal_length))
+#
+#         self.parameters = self._get_parameters_dict()
+#         self._fill_in_parameters(fast_length=fast_length,
+#                                  slow_length=slow_length,
+#                                  signal_length=signal_length,
+#                                  target=target)
+#
+#     def calculate(self, proxy_df):
+#         fast_length = self.parameters['fast_length']
+#         slow_length = self.parameters['slow_length']
+#         signal_length = self.parameters['signal_length']
+#         target = self.parameters['target']
+#         col_index = proxy_df.columns.get_loc(target)
+#
+#         column_name = '{}'.format(self.name)
+#         dif_column_name = 'd({})/dT'.format(self.name)
+#
+#         average_result = [None] * (length - 1)
+#         for i in range(length - 1, len(proxy_df.index)):
+#             average_result.append(
+#                 (proxy_df.iloc[i, col_index] - proxy_df.iloc[i - length, col_index])
+#                 / proxy_df.iloc[i - length, col_index] * 100
+#             )
+#
+#         proxy_df[column_name] = average_result
+#         proxy_df[dif_column_name] = \
+#             proxy_df[column_name].diff() / \
+#             proxy_df.index.to_series().diff().dt.total_seconds()
+#
+#         self.result = proxy_df[[column_name, dif_column_name]]
 
 
 class AnalysisHandler(object):

@@ -51,6 +51,7 @@ golden_ax_xydata = pd.DataFrame([[7.30141000e+05, 5.42857143e+01],
                                  [7.30161000e+05, 4.19523810e+01]])
 
 test_fig, test_ax = mplplt.subplots()
+# TODO: change to multiple subplots
 
 config_manager = utils.ConfigClass().config_manager
 
