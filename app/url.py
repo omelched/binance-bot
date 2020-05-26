@@ -1,7 +1,5 @@
 from app.utils import concat_url, BaseClass, URLHandlerError, APIError404, APIWarning429, APIError418
 import requests
-from requests import RequestException
-import json
 
 
 class URLHandler(BaseClass):

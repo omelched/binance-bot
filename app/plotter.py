@@ -3,6 +3,8 @@ import matplotlib.dates as mdates
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
+import datetime
+import math
 
 from app.utils import InvalidResolutionSettings
 
@@ -19,7 +21,13 @@ class Plotter(object):
         mpl.rcParams.update(mpl.rcParamsDefault)
 
     def plot_all(self, ticks: int):
-        self.fig, self.axs = self.plt.subplots(2, sharex='all', gridspec_kw={'height_ratios': [4, 1]})
+
+        timer = datetime.datetime.now()
+        self.fig, self.axs = self.plt.subplots(2,
+                                               sharex='all',
+                                               gridspec_kw={'height_ratios': [1, 1],
+                                                            'wspace': 0.025,
+                                                            'hspace': 0.05})
         self.main_ax = self.axs[0]
         self.ticks = ticks
 
@@ -31,6 +39,7 @@ class Plotter(object):
 
         self.plt.savefig('test.png', bbox_inches='tight',
                          pad_inches=0, dpi=int(self.app.config_manager['PLOT']['DPI']))
+        print('plot end in {}'.format(datetime.datetime.now() - timer))
 
     def _plot_candles(self):
         plot_df = self.proxy_df.tail(self.ticks)
@@ -38,6 +47,9 @@ class Plotter(object):
         self.fig.set_figheight(int(self.app.config_manager['PLOT']['figheight']))
 
         # TODO: make adequate parsing
+        if any(name in self.app.indicators for name in ['ROC', 'MACD']):
+            self.axs[-1].set_ylim(-max(self.axs[-1].lines[0].get_ydata()), max(self.axs[-1].lines[0].get_ydata()))
+
         if self.app.resolution == (4, 'h'):
             self.axs[-1].xaxis.set_major_locator(mdates.DayLocator())
             self.axs[-1].xaxis.set_minor_locator(mdates.HourLocator(byhour=[0, 12]))
@@ -77,12 +89,19 @@ class Plotter(object):
                          width=thin_bar_width)
         self.main_ax.set_ylim(min(plot_df['min_Shadow']) * (1 - 0.001),
                               max(plot_df['max_Shadow']) * (1 + 0.001))
-        self.axs[-1].set_ylim(-max(self.axs[-1].lines[0].get_ydata()), max(self.axs[-1].lines[0].get_ydata()))
+
         for ax in self.axs:
             ax.grid()
+            if not ax.lines:
+                continue
+            max_point = 0
+            min_point = 0
+            for line in ax.lines:
+                _max = max(max(line.get_ydata()), math.fabs(min(line.get_ydata())))
+                max_point = max(max_point, _max)
+                min_point = min(min_point, - _max)
+            ax.set_ylim(min_point, max_point)
             ax.legend()
-
-
 
     def _prepare_proxy_df(self):
         self.proxy_df = self.app.mem_df

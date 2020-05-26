@@ -15,7 +15,7 @@
   - [x] WMA
   - [x] EMA
   - [x] ROC
-  - [ ] MACD
+  - [x] MACD
   - [ ] Bollinger Band®
   - [ ] stochastic oscillator
   - [ ] Awesome oscillator
