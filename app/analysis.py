@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from app.utils import ConfigClass
+import math
 
 from app.utils import NonExistingIndicatorParameter
 
@@ -40,11 +41,19 @@ class Indicator(ConfigClass):
         elif self.model == 'EMA':
             return {'length': 0,
                     'target': '',
-                    'alpha': 0}
+                    'alpha': 0.0}
+        elif self.model == 'BB':
+            return {'length': 0,
+                    'target': '',
+                    'multiplicator': 0.0}
         elif self.model == 'MACD':
             return {'lambda_1': 0,
                     'lambda_2': 0,
                     'lambda_3': 0,
+                    'target': ''}
+        elif self.model == 'Stoch':
+            return {'lambda_1': 0,
+                    'lambda_2': 0,
                     'target': ''}
         else:
             raise Exception('Parameters not created for {}'.format(self.model))
@@ -124,7 +133,7 @@ class SMA(Indicator):
         column_name = 'SMA_{}'.format(length)
         dif_column_name = 'd(SMA_{})/dT'.format(length)
 
-        proxy_df[column_name] = proxy_df.iloc[:, col_index].rolling(window=length).mean()[length:]
+        proxy_df[column_name] = proxy_df.iloc[:, col_index].rolling(window=length).mean()[length - 1:]
         proxy_df[dif_column_name] = \
             proxy_df[column_name].diff() / \
             proxy_df.index.to_series().diff().dt.total_seconds()
@@ -328,6 +337,149 @@ class MACD(Indicator):
         ax.bar(df.index, df['{}_hist'.format(self.name)], color='r', width=0.5 * 4 / 24)
 
 
+class BB(Indicator):
+
+    def __init__(self,
+                 length: int = None,
+                 multiplicator: float = None,
+                 target: str = None):
+
+        super().__init__('BB', '{}({}, {})'.format('BB', length, multiplicator))
+        # TODO: refactor - ugly!
+        if not length:
+            length = int(self.config_manager['ANALYSIS']['BB_default_length'])
+            self.name = '{}({}, {})'.format('BB', length, multiplicator)
+        if not multiplicator:
+            multiplicator = int(self.config_manager['ANALYSIS']['BB_default_multiplicator'])
+            self.name = '{}({}, {})'.format('BB', length, multiplicator)
+        if not target:
+            target = self.config_manager['ANALYSIS']['BB_default_target']
+
+        self.parameters = self._get_parameters_dict()
+        self._fill_in_parameters(length=length,
+                                 multiplicator=multiplicator,
+                                 target=target)
+
+    def calculate(self, proxy_df):
+        length = self.parameters['length']
+        multiplicator = self.parameters['multiplicator']
+        target = self.parameters['target']
+        col_index = proxy_df.columns.get_loc(target)
+
+        column_up_name = '{}_up'.format(self.name)
+        column_mid_name = '{}_middle'.format(self.name)
+        column_down_name = '{}_down'.format(self.name)
+        dif_column_up_name = 'd({}_up)/dT'.format(self.name)
+        dif_column_mid_name = 'd({}_middle)/dT'.format(self.name)
+        dif_column_down_name = 'd({}_down)/dT'.format(self.name)
+
+        bb_up = []
+        bb_down = []
+
+        proxy_df[column_mid_name] = proxy_df.iloc[:, col_index].rolling(window=length).mean()[length - 1:]
+        sma_col_index = proxy_df.columns.get_loc(column_mid_name)
+        for i in range(len(proxy_df.index)):
+            _slice = proxy_df.iloc[i - length + 1: i + 1, col_index]
+            bb_up.append(proxy_df.iloc[i, sma_col_index] + (multiplicator * _slice.std()))
+            bb_down.append(proxy_df.iloc[i, sma_col_index] - (multiplicator * _slice.std()))
+
+        proxy_df[column_up_name] = bb_up
+        proxy_df[column_down_name] = bb_down
+        proxy_df[dif_column_up_name] = \
+            proxy_df[column_up_name].diff() / \
+            proxy_df.index.to_series().diff().dt.total_seconds()
+        proxy_df[dif_column_mid_name] = \
+            proxy_df[column_mid_name].diff() / \
+            proxy_df.index.to_series().diff().dt.total_seconds()
+        proxy_df[dif_column_down_name] = \
+            proxy_df[column_down_name].diff() / \
+            proxy_df.index.to_series().diff().dt.total_seconds()
+
+        self.result = proxy_df[[column_up_name, dif_column_up_name,
+                                column_mid_name, dif_column_mid_name,
+                                column_down_name, dif_column_down_name]]
+
+    def plot(self, ax, ticks, color=None, style=None):
+        df = self.result.tail(ticks)
+        color, style = self._get_unused_color_style(ax)
+
+        for i in ['up', 'down']:
+            ax.plot(df.index, df['{}_{}'.format(self.name, i)],
+                    c=color, ls=style, lw=1, label='{}_{}'.format(self.name, i))
+
+        ax.fill_between(df.index, df['{}_up'.format(self.name)], df['{}_down'.format(self.name)],
+                        facecolor=color, alpha=0.2, zorder=10)
+        color, style = self._get_unused_color_style(ax)
+        ax.plot(df.index, df['{}_middle'.format(self.name)],
+                c=color, ls=style, lw=1, label='{}_middle'.format(self.name))
+
+
+class Stochastic(Indicator):
+
+    def __init__(self,
+                 lambda_1: int = None,
+                 lambda_2: int = None,
+                 target: str = None):
+
+        super().__init__('Stoch', '{}({}, {})'.format('Stoch', lambda_1, lambda_2))
+        # TODO: refactor - ugly!
+        if not lambda_1:
+            lambda_1 = int(self.config_manager['ANALYSIS']['Stoch_default_lambda_1'])
+            self.name = '{}({}, {})'.format('Stoch', lambda_1, lambda_2)
+        if not lambda_2:
+            lambda_2 = int(self.config_manager['ANALYSIS']['Stoch_default_lambda_2'])
+            self.name = '{}({}, {})'.format('Stoch', lambda_1, lambda_2)
+        if not target:
+            target = self.config_manager['ANALYSIS']['Stoch_default_target']
+
+        self.parameters = self._get_parameters_dict()
+        self._fill_in_parameters(lambda_1=lambda_1,
+                                 lambda_2=lambda_2,
+                                 target=target)
+
+    def calculate(self, proxy_df):
+        lambda_1 = self.parameters['lambda_1']
+        lambda_2 = self.parameters['lambda_2']
+        target = self.parameters['target']
+        target_index = proxy_df.columns.get_loc(target)
+        min_index = proxy_df.columns.get_loc('Low')
+        max_index = proxy_df.columns.get_loc('High')
+
+        column_k_name = '{}_K'.format(self.name)
+        column_d_name = '{}_D'.format(self.name)
+        dif_column_k_name = 'd({}_K)/dT'.format(self.name)
+        dif_column_d_name = 'd({}_D)/dT'.format(self.name)
+
+        proxy_df[column_k_name] = [
+            (proxy_df.iloc[i, target_index] - proxy_df.iloc[i - lambda_1:i + 1, min_index].min()) /
+            (proxy_df.iloc[i - lambda_1:i + 1, max_index].max()
+             - proxy_df.iloc[i - lambda_1:i + 1, min_index].min()) * 100
+            for i in range(len(proxy_df.index))]
+        column_k_name_index = proxy_df.columns.get_loc(column_k_name)
+        proxy_df[column_d_name] = proxy_df.iloc[:, column_k_name_index].rolling(window=lambda_2).mean()[lambda_2 - 1:]
+
+        proxy_df[dif_column_k_name] = \
+            proxy_df[column_k_name].diff() / \
+            proxy_df.index.to_series().diff().dt.total_seconds()
+        proxy_df[dif_column_d_name] = \
+            proxy_df[column_d_name].diff() / \
+            proxy_df.index.to_series().diff().dt.total_seconds()
+
+        self.result = proxy_df[[column_k_name, dif_column_k_name,
+                                column_d_name, dif_column_d_name]]
+
+    def plot(self, ax, ticks, color=None, style=None):
+        df = self.result.tail(ticks)
+
+        for i in ['K', 'D']:
+            color, style = self._get_unused_color_style(ax)
+            ax.plot(df.index, df['{}_{}'.format(self.name, i)],
+                    c=color, ls=style, lw=1, label='{}_{}'.format(self.name, i))
+
+        ax.fill_between(df.index, 20, 80,
+                        facecolor=color, alpha=0.1, zorder=10)
+
+
 class AnalysisHandler(object):
     def __init__(self, app):
         self.app = app
@@ -341,7 +493,7 @@ class AnalysisHandler(object):
 
     def plot_all(self, axs: tuple, ticks: int):
         for indicator in self.app.indicators:
-            if indicator.model in ['ROC', 'MACD']:
+            if indicator.model in ['ROC', 'MACD', 'Stoch']:
                 indicator.plot(axs[1], ticks=ticks)
             else:
                 indicator.plot(axs[0], ticks=ticks)

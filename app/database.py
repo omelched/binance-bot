@@ -34,18 +34,18 @@ class DatabaseHandler(object):
                                                                                self.app.resolution)),
                           self.raw_file_path)
 
-    def _prepare_files(self):
+    def _prepare_files(self, is_forced: bool):
         try:
             mtime = os.stat(self.raw_file_path).st_mtime
-            if self.app.time_handler.file_is_outdated(mtime):
+            if self.app.time_handler.file_is_outdated(mtime) or is_forced:
                 # TODO: изменить с полной замены на догрузку недостающих частей - если resolution не поменялся
                 self._update_input()
         except FileNotFoundError:
             self._update_input()
 
-    def prepare_df(self):
+    def prepare_df(self, is_forced: bool = False):
 
-        self._prepare_files()
+        self._prepare_files(is_forced)
 
         df = self._load_from_csv(self.raw_file_path)[['t', 'o', 'h', 'l', 'c', 'v']]
 

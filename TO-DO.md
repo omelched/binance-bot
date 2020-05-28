@@ -16,8 +16,8 @@
   - [x] EMA
   - [x] ROC
   - [x] MACD
-  - [ ] Bollinger Band®
-  - [ ] stochastic oscillator
+  - [x] Bollinger Band®
+  - [x] stochastic oscillator
   - [ ] Awesome oscillator
   - [ ] Coppock curve
 - [ ] correct typing for `model` in `app.analysis.Indicator`
