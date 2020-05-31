@@ -1,6 +1,6 @@
 from app.time import TimeHandler
 from app.url import URLHandler
-from app.analysis import AnalysisHandler, SMA, WMA, EMA, ROC, MACD, BB, Stochastic
+from app.analysis import AnalysisHandler, SMA, WMA, EMA, ROC, MACD, BB, Stochastic, AO
 from app.database import DatabaseHandler
 from app.plotter import Plotter
 from app.utils import ConfigClass
@@ -16,7 +16,7 @@ class Application(ConfigClass):
         self.start_timestamp = int(self.config_manager['APPLICATION']['start_timestamp'])
 
         self.mem_df = None
-        self.indicators = [Stochastic()]
+        self.indicators = [AO()]
 
         self.time_handler = TimeHandler(self)
         self.url_handler = URLHandler(self)

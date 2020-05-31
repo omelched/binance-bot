@@ -55,6 +55,11 @@ class Indicator(ConfigClass):
             return {'lambda_1': 0,
                     'lambda_2': 0,
                     'target': ''}
+        elif self.model == 'AO':
+            return {'lambda_1': 0,
+                    'lambda_2': 0,
+                    'target_1': '',
+                    'target_2': ''}
         else:
             raise Exception('Parameters not created for {}'.format(self.model))
 
@@ -480,6 +485,55 @@ class Stochastic(Indicator):
                         facecolor=color, alpha=0.1, zorder=10)
 
 
+class AO(Indicator):
+
+    def __init__(self):
+        super().__init__('AO', '{}'.format('AO'))
+        # TODO: refactor - ugly!
+        lambda_1 = int(self.config_manager['ANALYSIS']['AO_default_lambda_fast'])
+        lambda_2 = int(self.config_manager['ANALYSIS']['AO_default_lambda_slow'])
+        target_1 = self.config_manager['ANALYSIS']['AO_default_target_high']
+        target_2 = self.config_manager['ANALYSIS']['AO_default_target_low']
+
+        self.parameters = self._get_parameters_dict()
+        self._fill_in_parameters(lambda_1=lambda_1,
+                                 lambda_2=lambda_2,
+                                 target_1=target_1,
+                                 target_2=target_2)
+
+    def calculate(self, proxy_df):
+        lambda_1 = self.parameters['lambda_1']
+        lambda_2 = self.parameters['lambda_2']
+        target_1 = self.parameters['target_1']
+        target_2 = self.parameters['target_2']
+
+        target_1_col_index = proxy_df.columns.get_loc(target_1)
+        target_2_col_index = proxy_df.columns.get_loc(target_2)
+
+        column_name = '{}'.format(self.name)
+        dif_column_name = 'd({})/dT'.format(self.name)
+
+        proxy_df['hl2'] = (proxy_df.iloc[:, target_1_col_index] + proxy_df.iloc[:, target_2_col_index]) / 2
+        hl2_index = proxy_df.columns.get_loc('hl2')
+
+        proxy_df[column_name] = proxy_df.iloc[:, hl2_index].rolling(window=lambda_1).mean()[lambda_1 - 1:] - \
+                                proxy_df.iloc[:, hl2_index].rolling(window=lambda_2).mean()[lambda_2 - 1:]
+
+        proxy_df[dif_column_name] = \
+            proxy_df[column_name].diff() / \
+            proxy_df.index.to_series().diff().dt.total_seconds()
+
+        self.result = proxy_df[[column_name, dif_column_name]]
+
+    def plot(self, ax, ticks, color=None, style=None):
+        df = self.result.tail(ticks)
+
+        ax.bar(df.index, df['{}'.format(self.name)], color=np.where(df['d({})/dT'.format(self.name)] > 0, 'g', 'r'),
+               width=0.5)
+
+
+
+
 class AnalysisHandler(object):
     def __init__(self, app):
         self.app = app
@@ -493,7 +547,7 @@ class AnalysisHandler(object):
 
     def plot_all(self, axs: tuple, ticks: int):
         for indicator in self.app.indicators:
-            if indicator.model in ['ROC', 'MACD', 'Stoch']:
+            if indicator.model in ['ROC', 'MACD', 'Stoch', 'AO']:
                 indicator.plot(axs[1], ticks=ticks)
             else:
                 indicator.plot(axs[0], ticks=ticks)

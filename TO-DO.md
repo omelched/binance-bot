@@ -18,8 +18,7 @@
   - [x] MACD
   - [x] Bollinger Band®
   - [x] stochastic oscillator
-  - [ ] Awesome oscillator
-  - [ ] Coppock curve
+  - [x] Awesome oscillator
 - [ ] correct typing for `model` in `app.analysis.Indicator`
 - [ ] `docstring`
   - [ ] `analysis.py`
