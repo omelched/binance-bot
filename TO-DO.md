@@ -4,7 +4,7 @@
     - [ ] cannot parse `hour_locator` и `minute_locator` :(
 - [ ] implement unittests
   - [x] `analysis.py`
-  - [ ] `application.py`
+  - [ ] `applicationclass.py`
   - [ ] `database.py`
   - [ ] `plotter.py`
   - [ ] `time.py`
@@ -22,7 +22,7 @@
 - [ ] correct typing for `model` in `app.analysis.Indicator`
 - [ ] `docstring`
   - [ ] `analysis.py`
-  - [ ] `application.py`
+  - [ ] `applicationclass.py`
   - [ ] `database.py`
   - [ ] `plotter.py`
   - [ ] `time.py`

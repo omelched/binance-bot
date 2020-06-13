@@ -40,14 +40,14 @@ class ConfigClass(object):
         self.config_manager = configparser.ConfigParser()
         self.cfg_file_name = 'CONFIG.cfg'
         self.cfg_path = ''
-        self.init_from_cfg()
+        self._init_from_cfg()
 
         self.logger = logging.getLogger('Logger')
         self.logger.setLevel(logging.INFO)
 
         self.logger.addHandler(logging.StreamHandler())
 
-    def init_from_cfg(self):
+    def _init_from_cfg(self):
         abs_cfg_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', self.cfg_file_name))
         self.cfg_path = os.path.relpath(abs_cfg_path, sys.argv[0])
 

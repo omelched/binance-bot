@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>376</width>
+    <height>90</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="actions_horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="plot_pushButton">
+        <property name="text">
+         <string>Plot graph</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="autoRepeat">
+         <bool>false</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="open_pushButton">
+        <property name="text">
+         <string>Open file</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="update_pushButton">
+        <property name="text">
+         <string>Update database</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QPushButton" name="exit_pushButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Exit</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

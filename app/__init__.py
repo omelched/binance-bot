@@ -1,4 +1,4 @@
-from app.application import Application
+from app.application import ApplicationClass
 import os
 
 try:
@@ -8,4 +8,4 @@ except KeyError:
     print('Запущено в режиме тестирования.')
 
 if a:
-    App = Application()
+    App = ApplicationClass()

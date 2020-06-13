@@ -6,11 +6,12 @@ import pandas as pd
 import datetime
 import math
 
-from app.utils import InvalidResolutionSettings
+from app.utils import InvalidResolutionSettings, ConfigClass
 
 
-class Plotter(object):
+class Plotter(ConfigClass):
     def __init__(self, app):
+        super().__init__()
         self.plt = mplplt
         self.app = app
         self.axs = None
@@ -39,7 +40,7 @@ class Plotter(object):
         self._plot_candles()
         self.app.analysis_handler.plot_all(self.axs, self.ticks)
         self._configure_figure()
-        self.plt.savefig('test.png', bbox_inches='tight',
+        self.plt.savefig(self.config_manager['PLOT']['filepath'], bbox_inches='tight',
                          pad_inches=0, dpi=int(self.app.config_manager['PLOT']['DPI']))
         print('plot end in {}'.format(datetime.datetime.now() - timer))
 
