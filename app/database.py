@@ -42,6 +42,10 @@ class DatabaseHandler(object):
                 self._update_input()
         except FileNotFoundError:
             self._update_input()
+        except ConnectionError:
+            pass
+        except Exception as e:
+            raise e
 
     def prepare_df(self, is_forced: bool = False):
 

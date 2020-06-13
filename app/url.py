@@ -1,8 +1,8 @@
-from app.utils import concat_url, BaseClass, URLHandlerError, APIError404, APIWarning429, APIError418
+from app.utils import concat_url, ConfigClass, URLHandlerError, APIError404, APIWarning429, APIError418
 import requests
 
 
-class URLHandler(BaseClass):
+class URLHandler(ConfigClass):
 
     def __init__(self, app):
         super().__init__()
@@ -13,18 +13,19 @@ class URLHandler(BaseClass):
             'klines': {'url': '/api/v3/klines', 'method': 'GET'},
             'ping': {'url': '/api/v3/ping', 'method': 'GET'}
         }
-        self._logger.debug('{} initialized'.format(self))
+        self.logger.debug('{} initialized'.format(self))
 
     def _call_API(self, command: str = 'ping', **kwargs):
-        self._logger.debug('called _call_API method')
+        self.logger.debug('called _call_API method')
         api_url = concat_url(self.base_endpoint + self.methods[command]['url'], **kwargs)
 
         response = requests.request(method=self.methods[command]['method'],
-                                    url=api_url)
+                                    url=api_url,
+                                    timeout=float(self.config_manager['APPLICATION']['connection_timeout']))
 
-        self._logger.debug('sent request {} {}'.format(self.methods[command]['method'],
+        self.logger.debug('sent request {} {}'.format(self.methods[command]['method'],
                                                        api_url))
-        self._logger.debug('got response {}'.format(response))
+        self.logger.debug('got response {}'.format(response))
         if response.status_code == 404:
             raise APIError404(response.url, response.text)
         elif response.status_code == 429:
