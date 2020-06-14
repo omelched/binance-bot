@@ -14,29 +14,23 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>binance-bot</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777213</height>
+       </size>
+      </property>
       <property name="currentIndex">
        <number>1</number>
-      </property>
-      <property name="usesScrollButtons">
-       <bool>false</bool>
-      </property>
-      <property name="documentMode">
-       <bool>false</bool>
-      </property>
-      <property name="tabsClosable">
-       <bool>false</bool>
-      </property>
-      <property name="movable">
-       <bool>false</bool>
-      </property>
-      <property name="tabBarAutoHide">
-       <bool>false</bool>
       </property>
       <widget class="QWidget" name="database_tab">
        <attribute name="title">
@@ -58,6 +52,13 @@
              <widget class="QComboBox" name="pair_comboBox"/>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -117,16 +118,13 @@
               <item>
                <widget class="QLineEdit" name="ticks_lineEdit">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
-                  <verstretch>1</verstretch>
+                  <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="inputMask">
                  <string>D99</string>
-                </property>
-                <property name="text">
-                 <string>96</string>
                 </property>
                 <property name="dragEnabled">
                  <bool>false</bool>
@@ -135,25 +133,32 @@
                  <bool>false</bool>
                 </property>
                 <property name="placeholderText">
-                 <string/>
+                 <string>96</string>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
+             <widget class="Line" name="line_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QVBoxLayout" name="verticalLayout_8">
               <item>
                <widget class="QPushButton" name="add_ind_pushButton">
                 <property name="text">
-                 <string>PushButton</string>
+                 <string>Add indicator</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="remove_ind_pushButton">
                 <property name="text">
-                 <string>PushButton</string>
+                 <string>Remove indicator</string>
                 </property>
                </widget>
               </item>
@@ -181,11 +186,8 @@
               <property name="columnCount">
                <number>1</number>
               </property>
-              <attribute name="horizontalHeaderCascadingSectionResizes">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-               <bool>false</bool>
+              <attribute name="horizontalHeaderStretchLastSection">
+               <bool>true</bool>
               </attribute>
               <column>
                <property name="text">
@@ -199,11 +201,18 @@
          </layout>
         </item>
         <item>
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="QPushButton" name="plot_pushButton">
             <property name="text">
-             <string>Plot graph</string>
+             <string>Plot to file</string>
             </property>
             <property name="checkable">
              <bool>false</bool>
@@ -230,6 +239,23 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="graph_tab">
+       <attribute name="title">
+        <string>Graph</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <item>
+         <widget class="QLabel" name="graph_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
@@ -252,6 +278,16 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>pair_comboBox</tabstop>
+  <tabstop>resolution_comboBox</tabstop>
+  <tabstop>update_pushButton</tabstop>
+  <tabstop>ticks_lineEdit</tabstop>
+  <tabstop>add_ind_pushButton</tabstop>
+  <tabstop>remove_ind_pushButton</tabstop>
+  <tabstop>indicators_tableWidget</tabstop>
+  <tabstop>plot_pushButton</tabstop>
+  <tabstop>open_pushButton</tabstop>
   <tabstop>exit_pushButton</tabstop>
  </tabstops>
  <resources/>

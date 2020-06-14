@@ -11,28 +11,30 @@ class Indicator(ConfigClass):
     Базовый класс Индикаторов.
     Все классы наследуются от него.
     """
+    model = None
 
-    def __init__(self, model: str, name: str):
+    def __init__(self, name: str):
         """
         Метод инициализации.
         Устанавливаются наименования модели, наименование индикатора,
         создается пустой словарь параметров, нулевой результат вычисления индикатора.
 
-        :type model: str
         :type name: str
         :param model: — имя модели индикатора
         :param name:
         """
         super().__init__()
-        self.model = model
         self.name = name
         self.parameters = {}
         self.result = pd.DataFrame()
 
+    def __str__(self):
+        return '{}'.format(self.name)
+
     def calculate(self, proxy_df: pd.DataFrame):
         self.result = pd.DataFrame(np.zeros(len(proxy_df.index), 1))
 
-    def _get_parameters_dict(self):
+    def get_parameters_dict(self):
 
         # TODO: refactor
         if self.model in ['SMA', 'WMA', 'ROC']:
@@ -51,7 +53,7 @@ class Indicator(ConfigClass):
                     'lambda_2': 0,
                     'lambda_3': 0,
                     'target': ''}
-        elif self.model == 'Stoch':
+        elif self.model == 'Stochastic':
             return {'lambda_1': 0,
                     'lambda_2': 0,
                     'target': ''}
@@ -66,7 +68,7 @@ class Indicator(ConfigClass):
     def _fill_in_parameters(self, **kwargs):
         for key, value in kwargs.items():
             if key in self.parameters.keys():
-                self.parameters.update({key: value})
+                self.parameters.update({key: type(self.parameters[key])(value)})
             else:
                 raise NonExistingIndicatorParameter
 
@@ -107,6 +109,7 @@ class SMA(Indicator):
     Класс Индикатора SMA.
     Дочерний класс Indicator
     """
+    model = 'SMA'
 
     def __init__(self, length: int = None, target: str = None):
         """
@@ -120,14 +123,14 @@ class SMA(Indicator):
         :param length: "длина" скользящего среднего, по-умолчанию — 21
         :param target: "цель" скользящего среднего, по-умолчанию — 'Close'
         """
-        super().__init__('SMA', '{}_{}'.format('SMA', length))
+        super().__init__('{}_{}'.format('SMA', length))
         if not length:
             length = int(self.config_manager['ANALYSIS']['SMA_default_length'])
             self.name = '{}_{}'.format('SMA', length)
         if not target:
             target = self.config_manager['ANALYSIS']['SMA_default_target']
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(length=length, target=target)
 
     def calculate(self, proxy_df):
@@ -147,17 +150,18 @@ class SMA(Indicator):
 
 
 class WMA(Indicator):
+    model = 'WMA'
 
     def __init__(self, length: int = None, target: str = None):
 
-        super().__init__('WMA', '{}_{}'.format('WMA', length))
+        super().__init__('{}_{}'.format('WMA', length))
         if not length:
             length = int(self.config_manager['ANALYSIS']['WMA_default_length'])
             self.name = '{}_{}'.format('WMA', length)
         if not target:
             target = self.config_manager['ANALYSIS']['WMA_default_target']
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(length=length, target=target)
 
     def calculate(self, proxy_df):
@@ -182,19 +186,20 @@ class WMA(Indicator):
 
 
 class EMA(Indicator):
+    model = 'EMA'
 
     def __init__(self, length: int = None, target: str = None, alpha: float = None):
 
-        super().__init__('EMA', '{}_{}'.format('EMA', length))
+        super().__init__('{}_{}'.format('EMA', length))
         if not length:
             length = int(self.config_manager['ANALYSIS']['EMA_default_length'])
             self.name = '{}_{}'.format('EMA', length)
         if not target:
             target = self.config_manager['ANALYSIS']['EMA_default_target']
         if not alpha:
-            alpha = 2 / (length + 1)
+            alpha = 2 / (int(length) + 1)
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(length=length, target=target, alpha=alpha)
 
     def calculate(self, proxy_df):
@@ -219,17 +224,18 @@ class EMA(Indicator):
 
 
 class ROC(Indicator):
+    model = 'ROC'
 
     def __init__(self, length: int = None, target: str = None):
 
-        super().__init__('ROC', '{}_{}'.format('ROC', length))
+        super().__init__('{}_{}'.format('ROC', length))
         if not length:
             length = int(self.config_manager['ANALYSIS']['ROC_default_length'])
             self.name = '{}_{}'.format('ROC', length)
         if not target:
             target = self.config_manager['ANALYSIS']['ROC_default_target']
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(length=length, target=target)
 
     def calculate(self, proxy_df):
@@ -256,6 +262,7 @@ class ROC(Indicator):
 
 
 class MACD(Indicator):
+    model = 'MACD'
 
     def __init__(self,
                  lambda_1: int = None,
@@ -263,7 +270,7 @@ class MACD(Indicator):
                  lambda_3: int = None,
                  target: str = None):
 
-        super().__init__('MACD', '{}({}, {}, {})'.format('MACD', lambda_1, lambda_2, lambda_3))
+        super().__init__('{}({}, {}, {})'.format('MACD', lambda_1, lambda_2, lambda_3))
         # TODO: refactor - ugly!
         if not lambda_1:
             lambda_1 = int(self.config_manager['ANALYSIS']['MACD_default_lambda_1'])
@@ -277,7 +284,7 @@ class MACD(Indicator):
         if not target:
             target = self.config_manager['ANALYSIS']['MACD_default_target']
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(lambda_1=lambda_1,
                                  lambda_2=lambda_2,
                                  lambda_3=lambda_3,
@@ -343,13 +350,14 @@ class MACD(Indicator):
 
 
 class BB(Indicator):
+    model = 'BB'
 
     def __init__(self,
                  length: int = None,
                  multiplicator: float = None,
                  target: str = None):
 
-        super().__init__('BB', '{}({}, {})'.format('BB', length, multiplicator))
+        super().__init__('{}({}, {})'.format('BB', length, multiplicator))
         # TODO: refactor - ugly!
         if not length:
             length = int(self.config_manager['ANALYSIS']['BB_default_length'])
@@ -360,7 +368,7 @@ class BB(Indicator):
         if not target:
             target = self.config_manager['ANALYSIS']['BB_default_target']
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(length=length,
                                  multiplicator=multiplicator,
                                  target=target)
@@ -420,24 +428,25 @@ class BB(Indicator):
 
 
 class Stochastic(Indicator):
+    model = 'Stochastic'
 
     def __init__(self,
                  lambda_1: int = None,
                  lambda_2: int = None,
                  target: str = None):
 
-        super().__init__('Stoch', '{}({}, {})'.format('Stoch', lambda_1, lambda_2))
+        super().__init__('{}({}, {})'.format('Stochastic', lambda_1, lambda_2))
         # TODO: refactor - ugly!
         if not lambda_1:
             lambda_1 = int(self.config_manager['ANALYSIS']['Stoch_default_lambda_1'])
-            self.name = '{}({}, {})'.format('Stoch', lambda_1, lambda_2)
+            self.name = '{}({}, {})'.format('Stochastic', lambda_1, lambda_2)
         if not lambda_2:
             lambda_2 = int(self.config_manager['ANALYSIS']['Stoch_default_lambda_2'])
-            self.name = '{}({}, {})'.format('Stoch', lambda_1, lambda_2)
+            self.name = '{}({}, {})'.format('Stochastic', lambda_1, lambda_2)
         if not target:
             target = self.config_manager['ANALYSIS']['Stoch_default_target']
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(lambda_1=lambda_1,
                                  lambda_2=lambda_2,
                                  target=target)
@@ -486,16 +495,17 @@ class Stochastic(Indicator):
 
 
 class AO(Indicator):
+    model = 'AO'
 
     def __init__(self):
-        super().__init__('AO', '{}'.format('AO'))
+        super().__init__('{}'.format('AO'))
         # TODO: refactor - ugly!
         lambda_1 = int(self.config_manager['ANALYSIS']['AO_default_lambda_fast'])
         lambda_2 = int(self.config_manager['ANALYSIS']['AO_default_lambda_slow'])
         target_1 = self.config_manager['ANALYSIS']['AO_default_target_high']
         target_2 = self.config_manager['ANALYSIS']['AO_default_target_low']
 
-        self.parameters = self._get_parameters_dict()
+        self.parameters = self.get_parameters_dict()
         self._fill_in_parameters(lambda_1=lambda_1,
                                  lambda_2=lambda_2,
                                  target_1=target_1,
@@ -532,8 +542,6 @@ class AO(Indicator):
                width=0.5)
 
 
-
-
 class AnalysisHandler(object):
     def __init__(self, app):
         self.app = app
@@ -542,11 +550,11 @@ class AnalysisHandler(object):
 
     def calculate_all(self):
         self._prepare_proxy_df()
-        for indicator in self.app.indicators:
+        for indicator in self.app.active_indicators:
             indicator.calculate(self.proxy_df)
 
     def plot_all(self, axs: tuple, ticks: int):
-        for indicator in self.app.indicators:
+        for indicator in self.app.active_indicators:
             if indicator.model in ['ROC', 'MACD', 'Stoch', 'AO']:
                 indicator.plot(axs[1], ticks=ticks)
             else:

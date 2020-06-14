@@ -59,7 +59,7 @@ config_manager = utils.ConfigClass().config_manager
 class ProxyApp(object):
     def __init__(self, df: pd.DataFrame):
         self.mem_df = df
-        self.indicators = [analysis.SMA()]
+        self.active_indicators = [analysis.SMA()]
 
 
 class TestSMA(unittest.TestCase):
@@ -102,13 +102,13 @@ class TestAnalysisHandler(unittest.TestCase):
     def test_calculate_all(self):
         self.analysis_handler_instance.calculate_all()
         assert_frame_equal(self.proxy_app.mem_df, proxy_df)
-        assert_frame_equal(self.proxy_app.indicators[0].result,
+        assert_frame_equal(self.proxy_app.active_indicators[0].result,
                            golden_result, check_less_precise=3)  # increase precise. Fails if > 3
 
     def test_plot_all(self):
         self.analysis_handler_instance.calculate_all()
         self.analysis_handler_instance.plot_all(test_ax, ticks=21)
-        for indicator in self.proxy_app.indicators:
+        for indicator in self.proxy_app.active_indicators:
             line = [line for line in test_ax.lines if line.get_label() == indicator.name][0]
             assert_frame_equal(golden_ax_xydata, pd.DataFrame(line.get_xydata()))
 

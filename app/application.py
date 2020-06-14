@@ -2,15 +2,15 @@ import sys
 import webbrowser
 import argparse
 
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication
 
 from app.time import TimeHandler
 from app.url import URLHandler
-from app.analysis import AnalysisHandler, SMA, WMA, EMA, ROC, MACD, BB, Stochastic, AO
+from app.analysis import AnalysisHandler, SMA, WMA, EMA, ROC, MACD, BB, Stochastic, AO, Indicator
 from app.database import DatabaseHandler
 from app.plotter import Plotter
 from app.utils import ConfigClass
-import app.qtui.design
+from app.gui import MainGUI
 
 
 class ApplicationClass(ConfigClass):
@@ -25,7 +25,8 @@ class ApplicationClass(ConfigClass):
         self.mem_df = None
         self.args = None
         self.mode = None
-        self.indicators = [AO()]
+        self.active_indicators = [SMA(21)]
+        self.indicator_models = [cls for cls in Indicator.__subclasses__()]
 
         self.time_handler = TimeHandler(self)
         self.url_handler = URLHandler(self)
@@ -39,14 +40,14 @@ class ApplicationClass(ConfigClass):
     def _parse_args(self):
         parser = argparse.ArgumentParser(description='Launch market analyzer app.')
         parser.add_argument('--cli', dest='mode', action='store_const', const='cli', default='gui',
-                            help='launch with CLI (default: launch with GUI)')
+                            help='launch with CLI (default: launch with MainGUI)')
         self.args = parser.parse_args()
         self.mode = self.args.mode
 
     def interface_loop(self):
         if self.mode == 'gui':
-            _app = QtWidgets.QApplication(sys.argv)
-            window = GUI(self)
+            _app = QApplication(sys.argv)
+            window = MainGUI(self)
             window.show()
             _app.exec_()
         else:
@@ -88,32 +89,3 @@ class ApplicationClass(ConfigClass):
             .open(self.config_manager['PLOT']['filepath'])
 
 
-class GUI(QtWidgets.QMainWindow, app.qtui.design.Ui_MainWindow):
-    def __init__(self, application: ApplicationClass):
-        super().__init__()
-        self.app = application
-        self.setupUi(self)
-
-        self._setup_comboBoxes()
-
-        self.plot_pushButton.clicked.connect(self.plot_pushButton_click)
-        self.open_pushButton.clicked.connect(self.open_pushButton_click)
-        self.update_pushButton.clicked.connect(self.update_pushButton_click)
-        self.exit_pushButton.clicked.connect(self.exit_pushButton_click)
-
-    def _setup_comboBoxes(self):
-        [self.pair_comboBox.addItem(pair) for pair in self.app.config_manager['APPLICATION']['pairs'].split(',')]
-        [self.resolution_comboBox.addItem(res) for res in self.app.config_manager['APPLICATION']['resolutions']
-            .split(',')]
-
-    def plot_pushButton_click(self):
-        self.app.plot()
-
-    def update_pushButton_click(self):
-        self.app.update()
-
-    def open_pushButton_click(self):
-        self.app.open()
-
-    def exit_pushButton_click(self):
-        self.app.exit()

@@ -24,13 +24,13 @@ class Plotter(ConfigClass):
     def plot_all(self, ticks: int):
 
         timer = datetime.datetime.now()
-        self.fig, self.axs = self.plt.subplots(2,
-                                               sharex='all',
-                                               gridspec_kw={'height_ratios': [3, 1],
-                                                            'wspace': 0.025,
-                                                            'hspace': 0.05})
-        # self.fig, self.axs = self.plt.subplots()
-        # self.axs = (self.axs,)
+        # self.fig, self.axs = self.plt.subplots(2,
+        #                                        sharex='all',
+        #                                        gridspec_kw={'height_ratios': [3, 1],
+        #                                                     'wspace': 0.025,
+        #                                                     'hspace': 0.05})
+        self.fig, self.axs = self.plt.subplots()
+        self.axs = (self.axs,)
         self.main_ax = self.axs[0]
         self.ticks = ticks
 
