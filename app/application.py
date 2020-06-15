@@ -5,7 +5,7 @@ import argparse
 from PyQt5.QtWidgets import QApplication
 
 from app.time import TimeHandler
-from app.url import URLHandler
+from app.network import NetworkHandler
 from app.analysis import AnalysisHandler, SMA, WMA, EMA, ROC, MACD, BB, Stochastic, AO, Indicator
 from app.database import DatabaseHandler
 from app.plotter import Plotter
@@ -16,7 +16,7 @@ from app.gui import MainGUI
 class ApplicationClass(ConfigClass):
     def __init__(self):
         super().__init__()
-        self.pair = self.config_manager['APPLICATION']['pairs'].split(',')[0]
+        self.active_pair = self.config_manager['APPLICATION']['pairs'].split(',')[0]
         self.resolution = (int(self.config_manager['APPLICATION']['resolution_number']),
                            self.config_manager['APPLICATION']['resolution_base'])
 
@@ -24,15 +24,19 @@ class ApplicationClass(ConfigClass):
 
         self.mem_df = None
         self.args = None
+        self.exchange_info = None
         self.mode = None
         self.active_indicators = [SMA(21)]
         self.indicator_models = [cls for cls in Indicator.__subclasses__()]
 
         self.time_handler = TimeHandler(self)
-        self.url_handler = URLHandler(self)
+        self.network_handler = NetworkHandler(self)
         self.analysis_handler = AnalysisHandler(self)
         self.plotter = Plotter(self)
         self.database_handler = DatabaseHandler(self)
+
+        self.pairs = ['{}'.format(pair['symbol']) for pair in self.exchange_info['symbols']
+                      if pair['status'] == 'TRADING']
 
         self._parse_args()
         self.interface_loop()

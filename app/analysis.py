@@ -20,7 +20,6 @@ class Indicator(ConfigClass):
         создается пустой словарь параметров, нулевой результат вычисления индикатора.
 
         :type name: str
-        :param model: — имя модели индикатора
         :param name:
         """
         super().__init__()

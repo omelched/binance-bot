@@ -4,9 +4,10 @@ import os
 import sys
 import numpy as np
 from logging.handlers import TimedRotatingFileHandler
+import errno
 
-FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
-LOG_FILE = "my_app.log"
+FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s")
+LOG_FILE = "log/my_app.log"
 
 
 def _get_console_handler():
@@ -24,7 +25,14 @@ def _get_file_handler():
 def get_logger(logger_name):
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(_get_console_handler())
+    if not os.path.exists(os.path.dirname(LOG_FILE)):
+        try:
+            os.makedirs(os.path.dirname(LOG_FILE))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                raise
+    if logger.handlers:
+        logger.handlers = []
     logger.addHandler(_get_file_handler())
     logger.propagate = False
     return logger
@@ -42,10 +50,8 @@ class ConfigClass(object):
         self.cfg_path = ''
         self._init_from_cfg()
 
-        self.logger = logging.getLogger('Logger')
-        self.logger.setLevel(logging.INFO)
-
-        self.logger.addHandler(logging.StreamHandler())
+        self.logger = get_logger('Logger')
+        self.logger.setLevel(logging.DEBUG)
 
     def _init_from_cfg(self):
         abs_cfg_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', self.cfg_file_name))
@@ -107,7 +113,7 @@ class InvalidResolutionSettings(ConfigError):
     pass
 
 
-class URLHandlerError(BaseException):
+class NetworkHandlerError(BaseException):
     pass
 
 

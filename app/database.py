@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import io
+import json
+import datetime
 
 
 class DatabaseHandler(object):
@@ -8,6 +10,7 @@ class DatabaseHandler(object):
         self.app = app
         self.raw_file_path = 'input.csv'
 
+        self.prepare_exchange_info()
         self.prepare_df()
 
     @staticmethod
@@ -30,8 +33,8 @@ class DatabaseHandler(object):
         return df
 
     def _update_input(self):
-        self._save_to_csv(self._response_to_df(self.app.url_handler.get_klines(self.app.pair,
-                                                                               self.app.resolution)),
+        self._save_to_csv(self._response_to_df(self.app.network_handler.get_klines(self.app.active_pair,
+                                                                                   self.app.resolution)),
                           self.raw_file_path)
 
     def _prepare_files(self, is_forced: bool):
@@ -46,6 +49,18 @@ class DatabaseHandler(object):
             pass
         except Exception as e:
             raise e
+
+    def prepare_exchange_info(self):
+        file_path = self.app.config_manager['APPLICATION']['exchangeInfo_filepath']
+
+        if not os.path.isfile(file_path) \
+                or os.stat(file_path).st_size == 0 \
+                or datetime.datetime.now().timestamp() - os.stat(file_path).st_mtime > 86400:
+            with open(file_path, 'w+') as file:
+                file.write(json.dumps(self.app.network_handler.call_API('exchangeInfo'), indent=4, sort_keys=True))
+
+        with open(file_path, 'r') as read_file:
+            self.app.exchange_info = json.load(read_file)
 
     def prepare_df(self, is_forced: bool = False):
 

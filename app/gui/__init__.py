@@ -99,13 +99,16 @@ class MainGUI(QtWidgets.QMainWindow, Ui_MainWindow):
             self.indicators_tableWidget.insertRow(r_pos)
             self.indicators_tableWidget.setItem(r_pos, 0, QtWidgets.QTableWidgetItem(indicator.name))
 
-
     def _connect_signals(self):
         self.plot_pushButton.clicked.connect(self.plot_pushButton_click)
         self.open_pushButton.clicked.connect(self.open_pushButton_click)
         self.update_pushButton.clicked.connect(self.update_pushButton_click)
         self.exit_pushButton.clicked.connect(self.exit_pushButton_click)
         self.add_ind_pushButton.clicked.connect(self.add_ind_pushButton_click)
+        self.pair_comboBox.currentTextChanged.connect(self._update_pair)
+
+    def _update_pair(self):
+        self.app.active_pair = self.pair_comboBox.currentText()
 
     def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
         if self.graph_label.pixmap():
@@ -113,7 +116,7 @@ class MainGUI(QtWidgets.QMainWindow, Ui_MainWindow):
             pass
 
     def _setup_comboBoxes(self):
-        [self.pair_comboBox.addItem(pair) for pair in self.app.config_manager['APPLICATION']['pairs'].split(',')]
+        [self.pair_comboBox.addItem(pair) for pair in self.app.pairs]
         [self.resolution_comboBox.addItem(res) for res in self.app.config_manager['APPLICATION']['resolutions']
             .split(',')]
 
