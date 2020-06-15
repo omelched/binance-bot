@@ -81,9 +81,13 @@ def gaussian(x, amp=1, mean=0, sigma=1):
     return amp * np.exp(-(x - mean) ** 2 / (2 * sigma ** 2))
 
 
-class APIError(BaseException):
+class LoggedBaseException(BaseException):
     def __init__(self):
         self._logger = get_logger(self.__class__.__name__)
+
+
+class APIError(LoggedBaseException):
+    pass
 
 
 class APIError404(APIError):
@@ -104,17 +108,19 @@ class APIWarning429(APIError):
         self._logger.warning('APIWarning429:\turl:\t{}\ttext:\t:{}\theaders:\t{}'.format(url, text, headers))
 
 
-class ConfigError(BaseException):
-    def __init__(self):
-        self._logger = get_logger(self.__class__.__name__)
+class ConfigError(LoggedBaseException):
+    pass
 
 
 class InvalidResolutionSettings(ConfigError):
-    pass
+    def __init__(self):
+        super().__init__()
+        self._logger.error('InvalidResolutionSettings')
 
 
-class NetworkHandlerError(BaseException):
-    pass
+class NetworkHandlerError(LoggedBaseException):
+    def __init__(self):
+        self._logger.error('NetworkHandlerError')
 
 
 class NonExistingIndicatorParameter(BaseException):

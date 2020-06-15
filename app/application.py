@@ -16,6 +16,7 @@ from app.gui import MainGUI
 class ApplicationClass(ConfigClass):
     def __init__(self):
         super().__init__()
+
         self.active_pair = self.config_manager['APPLICATION']['pairs'].split(',')[0]
         self.resolution = (int(self.config_manager['APPLICATION']['resolution_number']),
                            self.config_manager['APPLICATION']['resolution_base'])
@@ -39,6 +40,8 @@ class ApplicationClass(ConfigClass):
                       if pair['status'] == 'TRADING']
 
         self._parse_args()
+
+        self.logger.debug('{} initialized'.format(self))
         self.interface_loop()
 
     def _parse_args(self):
@@ -91,5 +94,3 @@ class ApplicationClass(ConfigClass):
     def open(self):
         webbrowser.get(self.config_manager['APPLICATION']['chrome_path']) \
             .open(self.config_manager['PLOT']['filepath'])
-
-

@@ -23,9 +23,12 @@ class Indicator(ConfigClass):
         :param name:
         """
         super().__init__()
+
         self.name = name
         self.parameters = {}
         self.result = pd.DataFrame()
+
+        self.logger.debug('{} initialized'.format(self))
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -541,18 +544,26 @@ class AO(Indicator):
                width=0.5)
 
 
-class AnalysisHandler(object):
+class AnalysisHandler(ConfigClass):
     def __init__(self, app):
+        super().__init__()
+
         self.app = app
         self.df = pd.DataFrame()
         self.proxy_df = pd.DataFrame()
 
+        self.logger.debug('{} initialized'.format(self))
+
     def calculate_all(self):
+        self.logger.debug('method call with {}'.format([]))
+
         self._prepare_proxy_df()
         for indicator in self.app.active_indicators:
             indicator.calculate(self.proxy_df)
 
     def plot_all(self, axs: tuple, ticks: int):
+        self.logger.debug('method call with {}'.format([axs, ticks]))
+
         for indicator in self.app.active_indicators:
             if indicator.model in ['ROC', 'MACD', 'Stoch', 'AO']:
                 indicator.plot(axs[1], ticks=ticks)
@@ -560,4 +571,6 @@ class AnalysisHandler(object):
                 indicator.plot(axs[0], ticks=ticks)
 
     def _prepare_proxy_df(self):
+        self.logger.debug('private method call with {}'.format([]))
+
         self.proxy_df = self.app.mem_df
