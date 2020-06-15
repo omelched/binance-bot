@@ -3,5 +3,5 @@
 /.idea
 input.csv
 test.png
-/log
+/logs/
 app/exchangeInfo.json

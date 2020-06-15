@@ -7,7 +7,7 @@ from logging.handlers import TimedRotatingFileHandler
 import errno
 
 FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s")
-LOG_FILE = "log/my_app.log"
+LOG_FILE = "logs/my_app.log"
 
 
 def _get_console_handler():
